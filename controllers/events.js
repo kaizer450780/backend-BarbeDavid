@@ -19,6 +19,7 @@ const getEvents= async(req,res=response)=>{
 
 const createEvent= async(req,res=response)=>{
 
+
     const event = new Event(req.body)
 
     try {
@@ -28,7 +29,11 @@ const createEvent= async(req,res=response)=>{
 
         for(let eventIt in events){
 
-            if(moment(dateEventStart).isBetween(events[eventIt].start,events[eventIt].end)){
+            console.log(dateEventStart)
+            console.log(events[eventIt].start)
+
+            if(moment(dateEventStart).isBetween(events[eventIt].start,events[eventIt].end) 
+                || moment(dateEventStart).isSame(events[eventIt].start)){
 
                 return res.status(400).json({
                     ok:false,
@@ -39,6 +44,8 @@ const createEvent= async(req,res=response)=>{
         }
 
         event.user=req.uid
+        event.start=moment(event.start).subtract('5','hour')
+        event.end=moment(event.end).subtract('5','hour')
 
         const eventSaved= await event.save()
 
