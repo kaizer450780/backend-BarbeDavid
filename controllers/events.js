@@ -67,17 +67,91 @@ const createEvent= async(req,res=response)=>{
 }
 
 const updateEvents= async(req,res=response)=>{
-    res.json({
-        ok:true,
-        msg:'update exitoso'
-    })
+
+    const eventId= req.params.id
+    const uid = req.uid
+
+    try {
+
+        const event = await Event.findById(eventId)
+
+        if(!event){
+            return res.status(404).json({
+                ok:false,
+                msg:'Evento con ese id no existe'
+            })
+        }
+
+        if(event.user.toString() !== uid){
+            return res.status(401).json({
+                ok:false,
+                msg:'No tienes permiso para editar esta cita'
+            })
+        }
+
+        const newEvent ={
+            ...req.body,
+            user:uid
+        }
+
+        const eventUpdated= await Event.findByIdAndUpdate(eventId,newEvent,{new:true})
+        
+        res.json({
+            ok:true,
+            event:eventUpdated
+        })
+
+        
+    } catch (error) {
+        console.log(error)
+        
+        res.status(500).json({
+            ok:false,
+            msg:'Error interno comuniquese con el administrador 3116537985'
+        })
+    }
+
 }
 
 const deleteEvents= async(req,res=response)=>{
-    res.json({
-        ok:true,
-        msg:'delete exitoso'
-    })
+
+    const eventId= req.params.id
+    const uid = req.uid
+
+    try {
+
+        const event = await Event.findById(eventId)
+
+        if(!event){
+            return res.status(404).json({
+                ok:false,
+                msg:'Evento con ese id no existe'
+            })
+        }
+
+        if(event.user.toString() !== uid){
+            return res.status(401).json({
+                ok:false,
+                msg:'No tienes permiso para eliminar esta cita'
+            })
+        }
+
+        await Event.findByIdAndDelete(eventId)
+        
+        res.json({
+            ok:true,
+            msg:"Evento eliminado"
+        })
+
+        
+    } catch (error) {
+        console.log(error)
+        
+        res.status(500).json({
+            ok:false,
+            msg:'Error interno comuniquese con el administrador 3116537985'
+        })
+    }
 }
 
 module.exports={
